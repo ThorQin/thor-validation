@@ -1,0 +1,21 @@
+{
+  "name": "thor-validation",
+  "version": "1.0.0",
+  "description": "A simple data validation toolkit.",
+  "repository": {
+    "url": "https://gitee.com/thor.qin/thor-validation.git"
+  },
+  "main": "index.js",
+  "exports": "index.js",
+  "type": "module",
+  "scripts": {},
+  "keywords": [
+    "data",
+    "time"
+  ],
+  "author": "thor.qin@outlook.com",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^7.0.0"
+  }
+}
