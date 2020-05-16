@@ -1,12 +1,13 @@
 /**
  * @typedef {{type: string}} Rule
- * @typedef {Rule & {typeRule: Rule}} ItemRule
  * @typedef {(...param) => Rule} RuleMaker
  * @typedef {Rule & {rules?: Rule[]}} ComboRule
+ * @typedef {ComboRule} ItemRule
  * @typedef {Rule & {message?: string}} CheckRule
  * @typedef {CheckRule & {min: number, max: number}} RangeRule
- * @typedef {CheckRule & {regex: RegExp}} PatternRule
+ * @typedef {CheckRule & {regex: RegExp|string}} PatternRule
  * @typedef {CheckRule & {value: number}} ValueRule
+ * @typedef {ItemRule & {message: string}} RequiredRule
  * @typedef {ItemRule & {name: string}} PropRule
  * @typedef {Rule & {rules?: CheckRule[]}} AnyRule
  * @typedef {Rule & {rules?: ComboRule[]}} UnionRule
@@ -28,6 +29,9 @@ export class SchemaError extends Error {
 
 const SCHEMA = {
 	mismatch: null,
+	val: valSchema,
+	less: lessSchema,
+	more: moreSchema,
 	min: minSchema,
 	max: maxSchema,
 	range: rangeSchema,
@@ -39,6 +43,7 @@ const SCHEMA = {
 	object: objectSchema,
 	string: stringSchema,
 	number: numberSchema,
+	boolean: booleanSchema,
 	array: arraySchema,
 	union: unionSchema
 };
@@ -47,14 +52,28 @@ const PRIMITIVE = {
 	object: objectSchema,
 	string: stringSchema,
 	number: numberSchema,
-	array: arraySchema
+	array: arraySchema,
+	boolean: booleanSchema
 };
 
 function fill(info, message) {
-	if (message) {
+	if (typeof message === 'string' || typeof message === 'number') {
 		info.message = message.toString();
 	}
 	return info;
+}
+
+/**
+ * Specified value, only be used as child rule of the primitive type string, number and boolean
+ * @param {number|string|boolean} value
+ * @param {string} message
+ * @returns {ValueRule}
+ */
+export function val(value, message = null) {
+	return fill({
+		type: 'val',
+		value: value
+	}, message);
 }
 
 /**
@@ -70,6 +89,13 @@ export function min(value, message = null) {
 	}, message);
 }
 
+export function less(value, message = null) {
+	return fill({
+		type: 'less',
+		value: value
+	}, message);
+}
+
 /**
  * Specify maximum value or length, only be used as child rule of the primitive type
  * @param {number} value
@@ -79,6 +105,13 @@ export function min(value, message = null) {
 export function max(value, message = null) {
 	return fill({
 		type: 'max',
+		value: value
+	}, message);
+}
+
+export function more(value, message = null) {
+	return fill({
+		type: 'more',
 		value: value
 	}, message);
 }
@@ -100,25 +133,31 @@ export function range(min, max, message = null) {
 
 /**
  * Specify string pattern, only be used as child rule of the string type
- * @param {RegExp} regex
+ * @param {RegExp|string} regex
  * @param {string} message
  * @returns {PatternRule}
  */
 export function pattern(regex, message = null) {
 	return fill({
 		type: 'pattern',
-		regex: regex
+		regex: regex instanceof RegExp ? regex.toString() : regex
 	}, message);
 }
 
 /**
  * Specify value must be provided, only be used as child rule of the primitive or group type
  * @param {string} message
- * @returns {CheckRule}
+ * @param  {...ComboRule} rules
+ * @returns {RequiredRule}
  */
-export function required(message = null) {
+export function required(message, ...rules) {
+	if (typeof message === 'object') {
+		rules = rules.concat(message, ...rules);
+		message = null;
+	}
 	return fill({
-		type: 'required'
+		type: 'required',
+		rules: rules
 	}, message);
 }
 
@@ -135,33 +174,33 @@ export function mismatch(message) {
 
 /**
  * Only be used as child rule of array type
- * @param  {Rule} typeRule
+ * @param  {...ComboRule} rules
  * @returns {ItemRule}
  */
-export function item(typeRule) {
+export function item(...rules) {
 	return {
 		type: 'item',
-		typeRule: typeRule
+		rules: rules
 	};
 }
 
 /**
  * Only be used as child rule of object type
  * @param {string} name
- * @param  {Rule} typeRule
+ * @param  {...ComboRule} rules
  * @returns {PropRule}
  */
-export function prop(name, typeRule) {
+export function prop(name, ...rules) {
 	return {
 		type: 'prop',
 		name: name,
-		typeRule: typeRule
+		rules: rules
 	};
 }
 
 /**
  * That indicate validating should passed when any sub rule matched, can be used as top level rule
- * @param  {...Rule} rules
+ * @param  {...CheckRule} rules
  * @returns {AnyRule}
  */
 export function any(...rules) {
@@ -173,7 +212,7 @@ export function any(...rules) {
 
 /**
  * That indicate validating should passed when any sub rule matched, can be used as top level rule
- * @param  {...Rule} rules
+ * @param  {...ComboRule} rules
  * @returns {UnionRule}
  */
 export function union(...rules) {
@@ -185,7 +224,7 @@ export function union(...rules) {
 
 /**
  * Primitive type object, can be used as top level rule
- * @param  {...Rule} rules
+ * @param  {...CheckRule} rules
  * @returns {ComboRule}
  */
 export function object(...rules) {
@@ -195,10 +234,21 @@ export function object(...rules) {
 	};
 }
 
+/**
+ * Primitive type number, can be used as top level rule
+ * @param  {...CheckRule} rules
+ * @returns {ComboRule}
+ */
+export function boolean(...rules) {
+	return {
+		type: 'boolean',
+		rules: rules
+	};
+}
 
 /**
  * Primitive type number, can be used as top level rule
- * @param  {...Rule} rules
+ * @param  {...CheckRule} rules
  * @returns {ComboRule}
  */
 export function number(...rules) {
@@ -210,7 +260,7 @@ export function number(...rules) {
 
 /**
  * Primitive type string, can be used as top level rule
- * @param  {...Rule} rules
+ * @param  {...CheckRule} rules
  * @returns {ComboRule}
  */
 export function string(...rules) {
@@ -221,8 +271,20 @@ export function string(...rules) {
 }
 
 /**
+ * Primitive type string, can be used as top level rule
+ * @param  {...CheckRule} rules
+ * @returns {ComboRule}
+ */
+export function date(...rules) {
+	return {
+		type: 'date',
+		rules: rules
+	};
+}
+
+/**
  * Primitive type array, can be used as top level rule
- * @param  {...Rule} rules
+ * @param  {...CheckRule} rules
  * @returns {ComboRule}
  */
 export function array(...rules) {
@@ -294,9 +356,335 @@ function createSubValidators(parentRule, subRules, validators, ...availableRules
 		}
 		return mismatchMessage;
 	} catch (e) {
-		throw new SchemaError(`Invalid ${parentRule.type}[${i}]: ${e.message}`);
+		throw new SchemaError(`Invalid "${parentRule.type}" rule (sub rule ${i+1}): ${e.message}`);
 	}
 }
+
+
+
+/**
+ * @param {ComboRule} rule
+ * @returns {Validator}
+ */
+function unionSchema(rule) {
+	let typeValidator = {};
+	let rules = rule.rules || [];
+	rules.filter(r => r.type in PRIMITIVE).forEach(
+		r => typeValidator[r.type] = PRIMITIVE[r.type](r)
+	);
+	let mismatchRule = rules.find(r => r.type === mismatch.name);
+	let mismatchMessage = mismatchRule ? mismatchRule.message : null;
+	let supportTypes = Object.keys(typeValidator);
+	if (supportTypes.length < 2) {
+		throw new SchemaError('Invalid "union" rule, at least provide two different types');
+	}
+	return (input) => {
+		let inputType = getInputType(input);
+		if (inputType !== 'undefined' && input !== null) {
+			let validator = typeValidator[inputType];
+			if (!validator) {
+				if (mismatchMessage) {
+					throw new ValidationError(mismatchMessage);
+				} else {
+					throw new ValidationError(`Unexpected type: can be '${supportTypes.toString().replace(',', ', ')}' but found '${inputType}'`);
+				}
+			} else {
+				validator(input);
+			}
+		}
+	};
+}
+
+
+/**
+ * @param {PropRule} rule
+ * @returns {Validator}
+ */
+function propSchema(rule) {
+	if (!(rule.rules instanceof Array) || rule.rules.length === 0) {
+		throw new SchemaError('Invalid "prop" rule: must provide a sub rule');
+	}
+	if (rule.rules.length > 1) {
+		throw new SchemaError('Invalid "prop" rule: can only have one sub rule');
+	}
+	if (!rule.name && rule.name !== 0) {
+		throw new SchemaError('Invalid "prop" rule: "name" must be a valid key or index');
+	}
+	let validator;
+	try {
+		validator = createValidator(rule.rules[0], [required, object, string, number, array, boolean, union]);
+	} catch (e) {
+		throw new SchemaError(`'Invalid "prop" rule of "${rule.name}": ${e.message}`);
+	}
+	return (input) => {
+		try {
+			if (typeof input === 'object' && input !== null) {
+				validator(input[rule.name]);
+			}
+		} catch (e) {
+			throw new ValidationError(`Invalid property "${rule.name}": ${e.message}`);
+		}
+	};
+}
+
+/**
+ * @param {PropRule} rule
+ * @returns {Validator}
+ */
+function itemSchema(rule) {
+	if (!(rule.rules instanceof Array) || rule.rules.length === 0) {
+		throw new SchemaError('Invalid "item" rule: must provide a sub rule');
+	}
+	if (rule.rules.length > 1) {
+		throw new SchemaError('Invalid "item" rule: can only have one sub rule');
+	}
+	let validator;
+	try {
+		validator = createValidator(rule.rules[0], [required, object, string, number, array, boolean, union]);
+	} catch (e) {
+		throw new SchemaError(`'Invalid "item" rule: ${e.message}`);
+	}
+	return (input) => {
+		let i;
+		try {
+			if (input instanceof Array) {
+				for (i = 0; i < input.length; i++) {
+					validator(input[i]);
+				}
+			}
+		} catch (e) {
+			throw new ValidationError(`Invalid item [${i}]: ${e.message}`);
+		}
+	};
+}
+
+/**
+ * @param {RequiredRule} rule
+ * @returns {Validator}
+ */
+function requiredSchema(rule) {
+	let validator = null;
+	if (rule.rules instanceof Array) {
+		if (rule.rules.length > 1) {
+			throw new SchemaError('Invalid "required" rule: can only have one sub rule');
+		}
+		if (rule.rules.length > 0) {
+			validator = createValidator(rule.rules[0], [object, string, number, array, boolean, union]);
+		}
+	}
+	return (input) => {
+		if (typeof input === 'undefined' || input === null) {
+			if (rule.message) {
+				throw new ValidationError(rule.message);
+			} else {
+				throw new ValidationError('value is required');
+			}
+		}
+		if (validator) {
+			validator(input);
+		}
+	};
+}
+
+/**
+ *
+ * @param {ValueRule} rule
+ * @param {string} state
+ * @param {string} what
+ */
+function invalidValueMessage(rule, state) {
+	if (rule.message) {
+		throw new ValidationError(rule.message);
+	} else {
+		throw new ValidationError(`${state} ${rule.value}`);
+	}
+}
+
+/**
+ * @param {ValueRule} rule
+ * @returns {Validator}
+ */
+function valSchema(rule, parentRule) {
+	let valType = typeof rule.value;
+	if (parentRule.type !== valType || (valType === 'number' && isNaN(rule.value))) {
+		throw new SchemaError(`Invalid "val" rule: "value" property must be a valid ${parentRule.type}`);
+	}
+	return (input) => {
+		if (parentRule.type === typeof input) {
+			if (input !== rule.value) {
+				invalidValueMessage(rule, 'Value !=');
+			}
+		}
+	};
+}
+
+/**
+ * @param {ValueRule} rule
+ * @returns {Validator}
+ */
+function minSchema(rule) {
+	if (!(typeof rule.value === 'number') || isNaN(rule.value)) {
+		throw new SchemaError('Invalid "min" rule: "value" property must be a valid number');
+	}
+	return (input) => {
+		let inputType = getInputType(input);
+		if (inputType === 'number') {
+			if (input < rule.value || isNaN(input)) {
+				invalidValueMessage(rule, 'Value should not be less than');
+			}
+		} else if (inputType === 'string') {
+			if (input.length < rule.value) {
+				invalidValueMessage(rule, 'String length should not be less than');
+			}
+		} else if (inputType === 'array') {
+			if (input.length < rule.value) {
+				invalidValueMessage(rule, 'Array length should not be less than');
+			}
+		}
+	};
+}
+
+function lessSchema(rule) {
+	if (!(typeof rule.value === 'number') || isNaN(rule.value)) {
+		throw new SchemaError('Invalid "less" rule: "value" property must be a valid number');
+	}
+	return (input) => {
+		let inputType = getInputType(input);
+		if (inputType === 'number') {
+			if (input >= rule.value || isNaN(input)) {
+				invalidValueMessage(rule, 'Value must be less than');
+			}
+		}
+	};
+}
+
+/**
+ * @param {ValueRule} rule
+ * @returns {Validator}
+ */
+function maxSchema(rule) {
+	if (!(typeof rule.value === 'number') || isNaN(rule.value)) {
+		throw new SchemaError('Invalid "max" rule: "value" property must be a valid number');
+	}
+	return (input) => {
+		let inputType = getInputType(input);
+		if (inputType === 'number') {
+			if (input > rule.value || isNaN(input)) {
+				invalidValueMessage(rule, 'Value should not be great than');
+			}
+		} else if (inputType === 'string') {
+			if (input.length > rule.value) {
+				invalidValueMessage(rule, 'String length should not be greater than');
+			}
+		} else if (inputType === 'array') {
+			if (input.length > rule.value) {
+				invalidValueMessage(rule, 'Array length should not be greater than');
+			}
+		}
+	};
+}
+
+function moreSchema(rule) {
+	if (!(typeof rule.value === 'number') || isNaN(rule.value)) {
+		throw new SchemaError('Invalid "more" rule: "value" property must be a valid number');
+	}
+	return (input) => {
+		let inputType = getInputType(input);
+		if (inputType === 'number') {
+			if (input <= rule.value || isNaN(input)) {
+				invalidValueMessage(rule, 'Value must be greater than');
+			}
+		}
+	};
+}
+
+/**
+ * @param {RangeRule} rule
+ * @returns {Validator}
+ */
+function rangeSchema(rule) {
+	if (!(typeof rule.min === 'number') || isNaN(rule.min)) {
+		throw new SchemaError('Invalid "range" rule: "min" property must be a valid number');
+	}
+	if (!(typeof rule.max === 'number') || isNaN(rule.max)) {
+		throw new SchemaError('Invalid "range" rule: "max" property must be a valid number');
+	}
+	return (input) => {
+		let inputType = getInputType(input);
+		if (inputType === 'number') {
+			if (input < rule.min || input > rule.max || isNaN(input)) {
+				if (rule.message) {
+					throw new ValidationError(rule.message);
+				} else {
+					throw new ValidationError(`Value must between ${rule.min} and ${rule.max}`);
+				}
+			}
+		}
+	};
+}
+
+const PATTERN_ERR_MSG = 'Invalid "pattern" rule: must provide a valid RegExp object or regular expression string';
+
+/**
+ * @param {PatternRule} rule
+ * @returns {Validator}
+ */
+function patternSchema(rule) {
+	let exp;
+	if (rule.regex instanceof RegExp) {
+		exp = rule.regex;
+	} else if (typeof rule.regex === 'string') {
+		try {
+			exp = new RegExp(...rule.regex.match(/\/(.*)\/(.*)/).slice(1));
+		} catch (e) {
+			throw new SchemaError(PATTERN_ERR_MSG + ': ' + e.message);
+		}
+	} else {
+		throw new SchemaError(PATTERN_ERR_MSG);
+	}
+	return (input) => {
+		if (typeof input === 'string') {
+			if (!exp.test(input)) {
+				if (rule.message) {
+					throw new ValidationError(rule.message);
+				} else {
+					throw new ValidationError(`Unmatched rule: ${exp.toString()}`);
+				}
+			}
+		}
+	};
+}
+
+/**
+ * @param {AnyRule} rule
+ * @param {ComboRule} parentRule
+ * @returns {Validator}
+ */
+function anySchema(rule, parentRule) {
+	let validators = [];
+	if (parentRule.type === string.name) {
+		createSubValidators(parentRule, rule.rules, validators, val, min, max, pattern);
+	} else if (parentRule.type === number.name) {
+		createSubValidators(parentRule, rule.rules, validators, val, min, max, less, more, range);
+	} else if (parentRule.type === boolean.name) {
+		createSubValidators(parentRule, rule.rules, validators, val);
+	}
+	if (validators.length < 2) {
+		throw new SchemaError('Invalid "any" rule: at least provide two sub rules');
+	}
+	return (input) => {
+		for (let i = 0; i < validators.length; i++) {
+			try {
+				validators[i](input);
+				return;
+			} catch {
+				null;
+			}
+		}
+		throw new ValidationError('Invalid value: no rule matched');
+	};
+}
+
 
 /**
  * @param {ComboRule} rule
@@ -319,256 +707,24 @@ function createPrimitiveSchema(rule, ...availableRules) {
 	};
 }
 
-
 function objectSchema(rule) {
-	return createPrimitiveSchema(rule, prop, required, mismatch);
+	return createPrimitiveSchema(rule, prop, mismatch);
 }
 
 function stringSchema(rule) {
-	return createPrimitiveSchema(rule, min, max, pattern, any, required, mismatch);
+	return createPrimitiveSchema(rule, val, min, max, pattern, any, mismatch);
 }
 
 function numberSchema(rule) {
-	return createPrimitiveSchema(rule, min, max, range, any, required, mismatch);
+	return createPrimitiveSchema(rule, val, min, max, less, more, range, any, mismatch);
 }
 
 function arraySchema(rule) {
-	return createPrimitiveSchema(rule, min, max, prop, item, required, mismatch);
+	return createPrimitiveSchema(rule, min, max, prop, item, mismatch);
 }
 
-/**
- * @param {ComboRule} rule
- * @returns {Validator}
- */
-function unionSchema(rule) {
-	let validators = [];
-	let typeValidator = {};
-	let rules = rule.rules || [];
-	rules.filter(r => r.type in PRIMITIVE).forEach(
-		r => typeValidator[r.type] = PRIMITIVE[r.type](r)
-	);
-	let mismatchRule = rules.find(r => r.type === mismatch.name);
-	let mismatchMessage = mismatchRule ? mismatchRule.message : null;
-	let requiredRule = rules.find(r => r.type === required.name);
-	if (requiredRule) {
-		validators.push(requiredSchema(requiredRule));
-	}
-	if (Object.keys(typeValidator).length < 2) {
-		throw new SchemaError('Invalid union type definition, at least provide two types');
-	}
-	return (input) => {
-		let inputType = getInputType(input);
-		if (inputType !== 'undefined' && input !== null) {
-			let validator = typeValidator[inputType];
-			if (!validator) {
-				if (mismatchMessage) {
-					throw new ValidationError(mismatchMessage);
-				} else {
-					throw new ValidationError(`Unexpected type: require '${rule.type}' but found '${inputType}'`);
-				}
-			} else {
-				validator(input);
-			}
-		}
-		validate(input, validators);
-	};
-}
-
-
-/**
- * @param {PropRule} rule
- * @returns {Validator}
- */
-function propSchema(rule) {
-	let validators = [];
-	createSubValidators(rule, [rule.typeRule], validators, object, string, number, array, union);
-	return (input) => {
-		try {
-			validate(input[rule.name], validators);
-		} catch (e) {
-			throw new ValidationError(`Invalid property "${rule.name}": ${e.message}`);
-		}
-	};
-}
-
-/**
- * @param {PropRule} rule
- * @returns {Validator}
- */
-function itemSchema(rule) {
-	let validators = [];
-	createSubValidators(rule, [rule.typeRule], validators, object, string, number, array, union);
-	return (input) => {
-		let i;
-		try {
-			for (i = 0; i < input.length; i++) {
-				validate(input[i], validators);
-			}
-		} catch (e) {
-			throw new ValidationError(`Invalid item [${i}]: ${e.message}`);
-		}
-	};
-}
-
-/**
- * @param {CheckRule} rule
- * @returns {Validator}
- */
-function requiredSchema(rule) {
-	return (input) => {
-		if (typeof input === 'undefined' || input === null) {
-			if (rule.message) {
-				throw new ValidationError(rule.message);
-			} else {
-				throw new ValidationError('Cannot be null or undefined');
-			}
-		}
-	};
-}
-
-/**
- *
- * @param {ValueRule} rule
- * @param {string} state
- * @param {string} what
- */
-function invalidValueMessage(rule, state) {
-	if (rule.message) {
-		throw new ValidationError(rule.message);
-	} else if (state) {
-		throw new ValidationError(`${state} than ${rule.value}`);
-	} else {
-		throw new ValidationError('Cannot be null or undefined');
-	}
-}
-
-/**
- * @param {ValueRule} rule
- * @returns {Validator}
- */
-function minSchema(rule) {
-	return (input) => {
-		if (typeof input === 'undefined' || input === null) {
-			invalidValueMessage(rule);
-		}
-		let inputType = getInputType(input);
-		if (inputType === 'number') {
-			if (input < rule.value || isNaN(input)) {
-				invalidValueMessage(rule, 'Value less');
-			}
-		} else if (inputType === 'string') {
-			if (input.length < rule.value) {
-				invalidValueMessage(rule, 'String length less');
-			}
-		} else if (inputType === 'array') {
-			if (input.length < rule.value) {
-				invalidValueMessage(rule, 'Array length less');
-			}
-		}
-	};
-}
-
-/**
- * @param {ValueRule} rule
- * @returns {Validator}
- */
-function maxSchema(rule) {
-	return (input) => {
-		if (typeof input === 'undefined' || input === null) {
-			invalidValueMessage(rule);
-		}
-		let inputType = getInputType(input);
-		if (inputType === 'number') {
-			if (input > rule.value || isNaN(input)) {
-				invalidValueMessage(rule, 'Value great');
-			}
-		} else if (inputType === 'string') {
-			if (input.length > rule.value) {
-				invalidValueMessage(rule, 'String length great');
-			}
-		} else if (inputType === 'array') {
-			if (input.length > rule.value) {
-				invalidValueMessage(rule, 'Array length great');
-			}
-		}
-	};
-}
-
-/**
- *
- * @param {ValueRule} rule
- * @param {string} state
- * @param {string} what
- */
-function invalidRangeMessage(rule, state) {
-	if (rule.message) {
-		throw new ValidationError(rule.message);
-	} else if (state) {
-		throw new ValidationError(`${state} must between ${rule.min} and ${rule.max}`);
-	} else {
-		throw new ValidationError('Cannot be null or undefined');
-	}
-}
-
-/**
- * @param {RangeRule} rule
- * @returns {Validator}
- */
-function rangeSchema(rule) {
-	return (input) => {
-		if (typeof input === 'undefined' || input === null) {
-			invalidRangeMessage(rule);
-		}
-		let inputType = getInputType(input);
-		if (inputType === 'number') {
-			if (input < rule.min || input > rule.max || isNaN(input)) {
-				invalidRangeMessage(rule, 'Value');
-			}
-		}
-	};
-}
-
-/**
- * @param {PatternRule} rule
- * @returns {Validator}
- */
-function patternSchema(rule) {
-	if (!(rule.regex instanceof RegExp)) {
-		throw new SchemaError('Invalid pattern rule: must provide a valid regular expression object');
-	}
-	return (input) => {
-		if (!rule.regex.test(input)) {
-			throw new ValidationError(`Unmatched the rule: ${rule.regex.toString()}`);
-		}
-	};
-}
-
-/**
- * @param {AnyRule} rule
- * @param {ComboRule} parentRule
- * @returns {Validator}
- */
-function anySchema(rule, parentRule) {
-	let validators = [];
-	if (parentRule.type === string.name) {
-		createSubValidators(rule, rule.rules, validators, min, max, pattern);
-	} else if (parentRule.type === number.name) {
-		createSubValidators(rule, rule.rules, validators, min, max, range);
-	}
-	if (validators.length < 2) {
-		throw new SchemaError('Invalid "any" rule definition, at least provide two sub rules');
-	}
-	return (input) => {
-		for (let i = 0; i < validators.length; i++) {
-			try {
-				validators[i](input);
-				return;
-			} catch {
-				null;
-			}
-		}
-		throw new ValidationError('Invalid value: no matching rule is found');
-	};
+function booleanSchema(rule) {
+	return createPrimitiveSchema(rule, val, mismatch);
 }
 
 /**
@@ -576,6 +732,6 @@ function anySchema(rule, parentRule) {
  * @param {Rule} rule Root rule
  * @returns {Validator}
  */
-export function buildSchema(rule) {
-	return createValidator(rule, [object, string, number, array, union]);
+export function build(rule) {
+	return createValidator(rule, [required, object, string, number, array, boolean, union]);
 }
