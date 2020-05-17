@@ -1,39 +1,45 @@
-import { object, string,  required, number, array, item, less, max, mismatch, min, pattern, any, union, prop, build, boolean, val, more } from "./index.js";
+import { Schema, end, object, string as str,  required as req, number, array, item, less, max, mismatch, min, pattern, any, union, prop, boolean, equal, more, date, before, after } from "./index.js";
 
 let detail = object(
-	prop('id', required()),
-	prop('value', union(string(), number())),
+	prop('id', req()),
+	prop('value', union(
+		date(any(
+			before('2019-1-1'),
+			after('2020-1-1')
+		)),
+		str(max(3))
+	)),
 );
 
 let detailList = array(
-	item(required(detail)),
+	item(req(detail)),
 	min(1)
 );
 
-let schema = object(
-	prop('name', required(string(any(val('thor'), val('qinnuo'))))),
-	prop('account', required(union(string(), number()))),
-	prop('age', required(number(any(less(5), more(20))))),
-	prop('saved', required(boolean(val(true)))),
+let rootRule = object(
+	prop('name', req(str(any(equal('thor'), equal('qinnuo'), pattern(/^abc/))))),
+	prop('account', req(union(str(), number()))),
+	prop('age', req(number(more(20)))),
+	prop('saved', req(boolean(equal(true)))),
+	prop('borthday', req(date(end('2020-3-1')))),
 	prop('info', detailList)
 );
 
-console.log(JSON.stringify(schema));
-
 try {
 
-	let validate = build(schema);
-
-	validate({
-		name: 'qinnuo',
+	let schema = new Schema(rootRule);
+	schema.validate({
+		name: 'abcd',
 		account: 'aaa',
-		info: [{id: 1, value: 3}],
-		age: 4,
+		info: [{id: 1, value: '2018-1-1'}],
+		age: 22,
+		borthday: '2020-2-1',
 		saved: true
 	});
-
+	console.log(schema + '');
+	console.log('Validate success!');
 } catch (e) {
-	console.error(e);
+	console.error(e.message);
 }
 
 
