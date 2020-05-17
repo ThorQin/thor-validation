@@ -172,11 +172,58 @@ let rule = array(
 
 8. union()
 
-means value can be multiple types.
+That's means value can be multiple types.
 
 ```javascript
 let rule = union(string(), number());
 ...
+```
+
+### Rename Rule Name
+
+You can rename any rule name as what your like, this usually can shorten your code:
+
+```javascript
+import {Schema, string as s, number as n, required as r, object as o, prop as p} from 'thor-validation';
+
+let rule = r(o(
+	p('name', r(s(min(1), max(30)))),
+	p('age', r(n(min(18))))
+));
+```
+
+### Split Definition
+
+To make the code clearly, usually you can split a complex definition to several parts:
+
+```javascript
+let detail = required(object(
+	prop('name', required(string())),
+	prop('account', required(string())),
+));
+let users = required(array(
+	item(detail),
+	min(1), max(1000)
+));
+let rule = required(object(
+	prop('action', required(string())),
+	prop('users', users)
+));
+try {
+	let schema = new Schema(rule);
+	schema.validate({
+		action: 'show',
+		users: [{
+			name: 'user 1',
+			account: 'account1'
+		},{
+			name: 'user 2',
+			account: 'account2'
+		}]
+	});
+} catch (e) {
+	console.log(e.message);
+}
 ```
 
 ### Specify Custom Message
@@ -212,4 +259,4 @@ let rule = string(max(20, 'String length cannot be more than 20 characters'));
 
 That's all
 
-If you find any problem please feel free to report to https://gitee.com/thor.qin/thor-validation/issues, I would appreciate your contribution.
+If you find any problem please feel free to report to [issues](https://gitee.com/thor.qin/thor-validation/issues), I would appreciate your contribution.
