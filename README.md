@@ -32,10 +32,10 @@ import {Schema, string} from 'thor-validation';
 
 let rule = string();
 try {
-	let schema = new Schema(rule);
+  let schema = new Schema(rule);
 } catch (e) {
-	// If schema definition have some problem, the invoking of build function will throw the 'SchemaError' exception.
-	console.log(e.message);
+  // If schema definition have some problem, the invoking of build function will throw the 'SchemaError' exception.
+  console.log(e.message);
 }
 ```
 
@@ -46,11 +46,11 @@ import {Schema, string} from 'thor-validation';
 
 let rule = string();
 try {
-	let schema = new Schema(rule);
-	schema.validate('Hello World!');
+  let schema = new Schema(rule);
+  schema.validate('Hello World!');
 } catch (e) {
-	// If validation failed, it will throw the 'ValidationError' exception.
-	console.log(e.message);
+  // If validation failed, it will throw the 'ValidationError' exception.
+  console.log(e.message);
 }
 ```
 
@@ -140,15 +140,15 @@ let rule = date(any(before('2019-1-1', between('2020-3-1', '2020-5-1'))));
 ```javascript
 let rule = object();
 let rule = object(
-	prop('name', string()),
-	prop('age', number()),
-	prop('extra', required()),
-	prop('detail', required(
-		object(
-			prop('id', required(number())),
-			prop('account', required(string()))
-		)
-	))
+  prop('name', string()),
+  prop('age', number()),
+  prop('extra', required()),
+  prop('detail', required(
+    object(
+      prop('id', required(number())),
+      prop('account', required(string()))
+    )
+  ))
 );
 ```
 
@@ -157,16 +157,16 @@ let rule = object(
 ```javascript
 let rule = array();
 let rule = array(
-	item(required(
-		union(
-			object(
-				prop('id', required(number())),
-				prop('account', required(string()))
-			),
-			string()
-		)
-	)),
-	min(10), max(20)
+  item(required(
+    union(
+      object(
+        prop('id', required(number())),
+        prop('account', required(string()))
+      ),
+      string()
+    )
+  )),
+  min(10), max(20)
 );
 ```
 
@@ -187,8 +187,8 @@ You can rename any rule name as what your like, this usually can shorten your co
 import {Schema, string as s, number as n, required as r, object as o, prop as p} from 'thor-validation';
 
 let rule = r(o(
-	p('name', r(s(min(1), max(30)))),
-	p('age', r(n(min(18))))
+  p('name', r(s(min(1), max(30)))),
+  p('age', r(n(min(18))))
 ));
 ```
 
@@ -198,31 +198,31 @@ To make the code clearly, usually you can split a complex definition to several 
 
 ```javascript
 let detail = required(object(
-	prop('name', required(string())),
-	prop('account', required(string())),
+  prop('name', required(string())),
+  prop('account', required(string())),
 ));
 let users = required(array(
-	item(detail),
-	min(1), max(1000)
+  item(detail),
+  min(1), max(1000)
 ));
 let rule = required(object(
-	prop('action', required(string())),
-	prop('users', users)
+  prop('action', required(string())),
+  prop('users', users)
 ));
 try {
-	let schema = new Schema(rule);
-	schema.validate({
-		action: 'show',
-		users: [{
-			name: 'user 1',
-			account: 'account1'
-		},{
-			name: 'user 2',
-			account: 'account2'
-		}]
-	});
+  let schema = new Schema(rule);
+  schema.validate({
+    action: 'show',
+    users: [{
+      name: 'user 1',
+      account: 'account1'
+    },{
+      name: 'user 2',
+      account: 'account2'
+    }]
+  });
 } catch (e) {
-	console.log(e.message);
+  console.log(e.message);
 }
 ```
 
