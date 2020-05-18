@@ -1,55 +1,61 @@
 interface Rule {
 	type: string;
-};
+}
 
-type CheckRule = Rule & {
+interface CheckRule extends Rule {
 	message?: string;
 }
 
-type ValueRule = CheckRule & {
+interface ValueRule extends CheckRule {
 	value: number;
-};
+}
 
-type DateRule = CheckRule & {
+interface DateRule extends CheckRule {
 	value: string|Date;
-};
+}
 
-type EqualRule = CheckRule & {
+interface EqualRule extends CheckRule {
 	value: boolean|number|string|Date;
-};
+}
 
-type BetweenRule = CheckRule & {
+interface RangeRule extends CheckRule {
+	min: number;
+	max: number;
+}
+
+interface BetweenRule extends CheckRule {
 	begin: string|Date;
 	end: string|Date;
-};
+}
 
-type PatternRule = CheckRule & {
+interface PatternRule extends CheckRule {
 	regex: string;
-};
+}
 
-type AnyRule = Rule & {
+interface AnyRule extends Rule {
 	rules: CheckRule[];
-};
+}
 
-type PrimitiveRule = Rule & {
+interface PrimitiveRule extends Rule {
 	rules: CheckRule[] | AnyRule[];
-};
+}
 
 
-type UnionRule = Rule & {
+interface UnionRule extends Rule {
 	rules: PrimitiveRule[];
-};
+}
 
-
-type RequiredRule = CheckRule & {
-	rules: PrimitiveRule[] | UnionRule[];
-};
-
-type ItemRule = {
+interface RequiredRule extends CheckRule {
 	rules: PrimitiveRule[] | UnionRule[];
 }
 
-type PropRule = { name: string } & ItemRule;
+interface ItemRule extends Rule {
+	rules: PrimitiveRule[] | UnionRule[];
+}
+
+interface PropRule extends ItemRule {
+	 name: string
+}
 
 
 export function mismatch(message?: string): CheckRule;
@@ -115,7 +121,7 @@ export function pattern(regex: string|RegExp, message?: string): PatternRule;
 /**
  * Combine checking conditions, if have the any of condition passed then regarded as validation successful
  */
-export function any(...rules: CheckRule): AnyRule;
+export function any(...rules: CheckRule[]): AnyRule;
 
 /**
  * Means value are required, only accept one primitive type rule as sub rule.
@@ -132,40 +138,43 @@ export function item(rule: PrimitiveRule): ItemRule;
  */
 export function prop(name: string, rule: PrimitiveRule): PropRule;
 
+
+type CheckOrAnyRule = CheckRule | AnyRule;
+
 /**
  * Object primitive type rule
  */
-export function object(...rules: CheckRule | AnyRule): PrimitiveRule;
+export function object(...rules: CheckOrAnyRule[]): PrimitiveRule;
 
 /**
  * String primitive type rule
  */
-export function string(...rules: CheckRule | AnyRule): PrimitiveRule;
+export function string(...rules: CheckOrAnyRule[]): PrimitiveRule;
 
 /**
  * Number primitive type rule
  */
-export function number(...rules: CheckRule | AnyRule): PrimitiveRule;
+export function number(...rules: CheckOrAnyRule[]): PrimitiveRule;
 
 /**
  * Boolean primitive type rule
  */
-export function boolean(...rules: CheckRule | AnyRule): PrimitiveRule;
+export function boolean(...rules: CheckOrAnyRule[]): PrimitiveRule;
 
 /**
  * Date primitive type rule
  */
-export function date(...rules: CheckRule | AnyRule): PrimitiveRule;
+export function date(...rules: CheckOrAnyRule[]): PrimitiveRule;
 
 /**
  * Array primitive type rule
  */
-export function array(...rules: CheckRule | AnyRule): PrimitiveRule;
+export function array(...rules: CheckOrAnyRule[]): PrimitiveRule;
 
 /**
  * Union type rule, can combine primitive type rule to indicate the value may be multiple types
  */
-export function union(...rules: PrimitiveRule): UnionRule;
+export function union(...rules: PrimitiveRule[]): UnionRule;
 
 export class ValidationError extends Error {}
 
