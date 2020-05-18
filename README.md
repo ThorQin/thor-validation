@@ -253,7 +253,7 @@ let rule = string(max(20, 'String length cannot be more than 20 characters'));
 
 **NOTE:**
 
-**Usually We Won't Specify Any Custom Message, Because the Builtin Message Will Show More Detailed Info to Us**
+**Usually we won't specify any custom message, because the builtin error message will provide more detailed info to us.**
 
 ---
 
