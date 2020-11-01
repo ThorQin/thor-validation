@@ -1,20 +1,34 @@
-import { Schema, end, object, string as str,  required as req, number, array, item, less, max, mismatch, min, pattern, any, union, prop, boolean, equal, more, date, before, after } from "./index.js";
+import {
+	Schema,
+	end,
+	object,
+	string as str,
+	required as req,
+	number,
+	array,
+	item,
+	less,
+	max,
+	mismatch,
+	min,
+	pattern,
+	any,
+	union,
+	prop,
+	boolean,
+	equal,
+	more,
+	date,
+	before,
+	after,
+} from '../dist/index.js';
 
 let detail = object(
 	prop('id', req()),
-	prop('value', union(
-		date(any(
-			before('2019-1-1'),
-			after('2020-1-1')
-		)),
-		str(max(3))
-	)),
+	prop('value', union(date(any(before('2019-1-1'), after('2020-1-1'))), str(max(3))))
 );
 
-let detailList = array(
-	item(req(detail)),
-	min(1)
-);
+let detailList = array(item(req(detail)), min(1));
 
 let rootRule = object(
 	prop('name', req(str(any(equal('thor'), equal('qinnuo'), pattern(/^abc/))))),
@@ -26,22 +40,19 @@ let rootRule = object(
 );
 
 try {
-
 	let schema = new Schema(rootRule);
 	schema.validate({
 		name: 'abcd',
 		account: 'aaa',
-		info: [{id: 1, value: '2018-1-1'}],
+		info: [{ id: 1, value: '2018-1-1' }],
 		age: 22,
 		borthday: '2020-2-1',
-		saved: true
+		saved: true,
 	});
 	console.log(schema + '');
 	console.log('Validate success!');
 } catch (e) {
 	console.error(e.message);
 }
-
-
 
 //console.log(JSON.stringify(schema, null, 2));

@@ -11,11 +11,11 @@ interface ValueRule extends CheckRule {
 }
 
 interface DateRule extends CheckRule {
-	value: string|Date;
+	value: string | Date;
 }
 
 interface EqualRule extends CheckRule {
-	value: boolean|number|string|Date;
+	value: boolean | number | string | Date;
 }
 
 interface RangeRule extends CheckRule {
@@ -24,8 +24,8 @@ interface RangeRule extends CheckRule {
 }
 
 interface BetweenRule extends CheckRule {
-	begin: string|Date;
-	end: string|Date;
+	begin: string | Date;
+	end: string | Date;
 }
 
 interface PatternRule extends CheckRule {
@@ -40,7 +40,6 @@ interface PrimitiveRule extends Rule {
 	rules: CheckRule[] | AnyRule[];
 }
 
-
 interface UnionRule extends Rule {
 	rules: PrimitiveRule[];
 }
@@ -54,15 +53,14 @@ interface ItemRule extends Rule {
 }
 
 interface PropRule extends ItemRule {
-	 name: string
+	name: string;
 }
-
 
 export function mismatch(message?: string): CheckRule;
 /**
  * Input must equal to specified value
  */
-export function equal(value: number|string|Date|boolean, message?: string): EqualRule;
+export function equal(value: number | string | Date | boolean, message?: string): EqualRule;
 
 /**
  * Input value must greater than or equal to specified value
@@ -91,32 +89,32 @@ export function range(min: number, max: number, message?: string): RangeRule;
 /**
  * Input date must later than or equal to specified date
  */
-export function begin(value: string|Date, message?: string): DateRule;
+export function begin(value: string | Date, message?: string): DateRule;
 
 /**
  * Input date must earlier than or equal to specified date
  */
-export function end(value: string|Date, message?: string): DateRule;
+export function end(value: string | Date, message?: string): DateRule;
 
 /**
  * Input date must earlier than specified date
  */
-export function before(value: string|Date, message?: string): DateRule;
+export function before(value: string | Date, message?: string): DateRule;
 
 /**
  * Input date must later than specified date
  */
-export function after(value: string|Date, message?: string): DateRule;
+export function after(value: string | Date, message?: string): DateRule;
 
 /**
  * Input date must between 'begin' time and 'end' time
  */
-export function between(begin: string|Date, end: string|Date, message?: string): BetweenRule;
+export function between(begin: string | Date, end: string | Date, message?: string): BetweenRule;
 
 /**
  * Input string must match specified regular expression
  */
-export function pattern(regex: string|RegExp, message?: string): PatternRule;
+export function pattern(regex: string | RegExp, message?: string): PatternRule;
 
 /**
  * Combine checking conditions, if have the any of condition passed then regarded as validation successful
@@ -137,7 +135,6 @@ export function item(rule: PrimitiveRule): ItemRule;
  * Object primitive type rule's sub rule, only accept one primitive type rule as sub rule.
  */
 export function prop(name: string, rule: PrimitiveRule): PropRule;
-
 
 type CheckOrAnyRule = CheckRule | AnyRule;
 
@@ -181,10 +178,10 @@ export class ValidationError extends Error {}
 export class SchemaError extends Error {}
 
 interface Validator {
-	(input: any): void;
+	(input: unknown): void;
 }
 
 export class Schema {
 	constructor(rule: PrimitiveRule | UnionRule | RequiredRule);
-	validate(input: any): void;
+	validate(input: unknown): void;
 }
