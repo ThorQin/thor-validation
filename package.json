@@ -6,7 +6,8 @@
     "url": "https://gitee.com/thor.qin/thor-validation.git"
   },
   "main": "./dist/index.js",
-  "exports": "./dist/index.js",
+	"exports": "./dist/index.js",
+	"types": "./dist/index.d.ts",
   "type": "module",
   "keywords": [
     "data",
