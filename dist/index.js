@@ -1,13 +1,18 @@
-export class ValidationError extends Error {
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.Schema = exports.array = exports.date = exports.string = exports.number = exports.boolean = exports.object = exports.union = exports.any = exports.prop = exports.item = exports.mismatch = exports.need = exports.pattern = exports.between = exports.end = exports.begin = exports.after = exports.before = exports.more = exports.less = exports.range = exports.max = exports.min = exports.equal = exports.SchemaError = exports.ValidationError = void 0;
+class ValidationError extends Error {
 	constructor(msg) {
 		super(msg);
 	}
 }
-export class SchemaError extends Error {
+exports.ValidationError = ValidationError;
+class SchemaError extends Error {
 	constructor(msg) {
 		super(msg);
 	}
 }
+exports.SchemaError = SchemaError;
 const RULES = {
 	mismatch: null,
 	equal: equalRule,
@@ -23,7 +28,7 @@ const RULES = {
 	between: betweenRule,
 	pattern: patternRule,
 	any: anyRule,
-	required: requiredRule,
+	need: needRule,
 	prop: propRule,
 	item: itemRule,
 	object: objectRule,
@@ -51,7 +56,7 @@ function fill(info, message) {
 /**
  * Specified value, only be used as child rule of the primitive type string, number and boolean
  */
-export function equal(value, message = null) {
+function equal(value, message = null) {
 	return fill(
 		{
 			type: 'equal',
@@ -60,10 +65,11 @@ export function equal(value, message = null) {
 		message
 	);
 }
+exports.equal = equal;
 /**
  * Specify minimum value or length, only be used as child rule of the primitive type
  */
-export function min(value, message = null) {
+function min(value, message = null) {
 	return fill(
 		{
 			type: 'min',
@@ -72,10 +78,11 @@ export function min(value, message = null) {
 		message
 	);
 }
+exports.min = min;
 /**
  * Specify maximum value or length, only be used as child rule of the primitive type
  */
-export function max(value, message = null) {
+function max(value, message = null) {
 	return fill(
 		{
 			type: 'max',
@@ -84,10 +91,11 @@ export function max(value, message = null) {
 		message
 	);
 }
+exports.max = max;
 /**
  * Specify value or length's range, only be used as child rule of the primitive type
  */
-export function range(min, max, message = null) {
+function range(min, max, message = null) {
 	return fill(
 		{
 			type: 'range',
@@ -97,7 +105,8 @@ export function range(min, max, message = null) {
 		message
 	);
 }
-export function less(value, message = null) {
+exports.range = range;
+function less(value, message = null) {
 	return fill(
 		{
 			type: 'less',
@@ -106,7 +115,8 @@ export function less(value, message = null) {
 		message
 	);
 }
-export function more(value, message = null) {
+exports.less = less;
+function more(value, message = null) {
 	return fill(
 		{
 			type: 'more',
@@ -115,7 +125,8 @@ export function more(value, message = null) {
 		message
 	);
 }
-export function before(value, message = null) {
+exports.more = more;
+function before(value, message = null) {
 	return fill(
 		{
 			type: 'before',
@@ -124,7 +135,8 @@ export function before(value, message = null) {
 		message
 	);
 }
-export function after(value, message = null) {
+exports.before = before;
+function after(value, message = null) {
 	return fill(
 		{
 			type: 'after',
@@ -133,7 +145,8 @@ export function after(value, message = null) {
 		message
 	);
 }
-export function begin(value, message = null) {
+exports.after = after;
+function begin(value, message = null) {
 	return fill(
 		{
 			type: 'begin',
@@ -142,12 +155,13 @@ export function begin(value, message = null) {
 		message
 	);
 }
+exports.begin = begin;
 /**
  * @param {string|Date} value
  * @param {string} message
  * @returns {ValueRule}
  */
-export function end(value, message = null) {
+function end(value, message = null) {
 	return fill(
 		{
 			type: 'end',
@@ -156,10 +170,11 @@ export function end(value, message = null) {
 		message
 	);
 }
+exports.end = end;
 /**
  * Specify date range, only be used as child rule of the date type
  */
-export function between(begin, end, message = null) {
+function between(begin, end, message = null) {
 	return fill(
 		{
 			type: 'between',
@@ -169,10 +184,11 @@ export function between(begin, end, message = null) {
 		message
 	);
 }
+exports.between = between;
 /**
  * Specify string pattern, only be used as child rule of the string type
  */
-export function pattern(regex, message = null) {
+function pattern(regex, message = null) {
 	return fill(
 		{
 			type: 'pattern',
@@ -181,29 +197,31 @@ export function pattern(regex, message = null) {
 		message
 	);
 }
+exports.pattern = pattern;
 /**
  * Specify value must be provided, only be used as child rule of the primitive or group type
  * @param {string} message
  * @param  {...ComboRule} rules
- * @returns {RequiredRule}
+ * @returns {NeedRule}
  */
-export function required(rule = null, message = null) {
+function need(rule = null, message = null) {
 	if (typeof rule === 'string') {
 		message = rule;
 		rule = null;
 	}
 	return fill(
 		{
-			type: 'required',
+			type: 'need',
 			rule: rule,
 		},
 		message
 	);
 }
+exports.need = need;
 /**
  * Show custom message when type mismatched, only be used as child rule of the primitive or group type
  */
-export function mismatch(message = null) {
+function mismatch(message = null) {
 	return fill(
 		{
 			type: 'mismatch',
@@ -211,97 +229,108 @@ export function mismatch(message = null) {
 		message
 	);
 }
+exports.mismatch = mismatch;
 /**
  * Only be used as child rule of array type
  */
-export function item(rule) {
+function item(rule) {
 	return {
 		type: 'item',
 		rule: rule,
 	};
 }
+exports.item = item;
 /**
  * Only be used as child rule of object type
  */
-export function prop(name, rule) {
+function prop(name, rule) {
 	return {
 		type: 'prop',
 		name: name,
 		rule: rule,
 	};
 }
+exports.prop = prop;
 /**
  * That indicate validating should passed when any sub rule matched, can be used as top level rule
  */
-export function any(...rules) {
+function any(...rules) {
 	return {
 		type: 'any',
 		rules: rules,
 	};
 }
+exports.any = any;
 /**
  * That indicate validating should passed when any sub rule matched, can be used as top level rule
  */
-export function union(...rules) {
+function union(...rules) {
 	return {
 		type: 'union',
 		rules: rules,
 	};
 }
+exports.union = union;
 /**
  * Primitive type object, can be used as top level rule
  */
-export function object(...rules) {
+function object(...rules) {
 	return {
 		type: 'object',
 		rules: rules,
 	};
 }
+exports.object = object;
 /**
  * Primitive type number, can be used as top level rule
  */
-export function boolean(...rules) {
+function boolean(...rules) {
 	return {
 		type: 'boolean',
 		rules: rules,
 	};
 }
+exports.boolean = boolean;
 /**
  * Primitive type number, can be used as top level rule
  */
-export function number(...rules) {
+function number(...rules) {
 	return {
 		type: 'number',
 		rules: rules,
 	};
 }
+exports.number = number;
 /**
  * Primitive type string, can be used as top level rule
  */
-export function string(...rules) {
+function string(...rules) {
 	return {
 		type: 'string',
 		rules: rules,
 	};
 }
+exports.string = string;
 /**
  * Primitive type string, can be used as top level rule
  */
-export function date(...rules) {
+function date(...rules) {
 	return {
 		type: 'date',
 		rules: rules,
 	};
 }
+exports.date = date;
 /**
  * Primitive type array, can be used as top level rule
  */
-export function array(...rules) {
+function array(...rules) {
 	return {
 		type: 'array',
 		rules: rules,
 	};
 }
+exports.array = array;
 //////////////////////////////////////////////////
 function getInputType(input) {
 	let inputType = typeof input;
@@ -357,7 +386,7 @@ function propRule(rule) {
 	let validator;
 	try {
 		validator = createValidator(rule.rule, [
-			required.name,
+			need.name,
 			object.name,
 			string.name,
 			number.name,
@@ -386,7 +415,7 @@ function itemRule(rule) {
 	let validator;
 	try {
 		validator = createValidator(rule.rule, [
-			required.name,
+			need.name,
 			object.name,
 			string.name,
 			number.name,
@@ -411,7 +440,7 @@ function itemRule(rule) {
 		}
 	};
 }
-function requiredRule(rule) {
+function needRule(rule) {
 	let validator = null;
 	if (rule.rule) {
 		try {
@@ -425,7 +454,7 @@ function requiredRule(rule) {
 				union.name,
 			]);
 		} catch (e) {
-			throw new SchemaError(`Invalid "required" rule:\n    > ${e.message}`);
+			throw new SchemaError(`Invalid "need" rule:\n    > ${e.message}`);
 		}
 	}
 	return (input) => {
@@ -433,7 +462,7 @@ function requiredRule(rule) {
 			if (rule.message) {
 				throw new ValidationError(rule.message);
 			} else {
-				throw new ValidationError('value is required');
+				throw new ValidationError('value is need');
 			}
 		}
 		if (validator) {
@@ -823,7 +852,7 @@ function unionRule(rule) {
 		}
 	};
 }
-export class Schema {
+class Schema {
 	constructor(rule) {
 		this.toJSON = () => {
 			return rule;
@@ -832,7 +861,7 @@ export class Schema {
 			return JSON.stringify(rule, null, 2);
 		};
 		this.validate = createValidator(rule, [
-			required.name,
+			need.name,
 			object.name,
 			string.name,
 			number.name,
@@ -843,3 +872,5 @@ export class Schema {
 		]);
 	}
 }
+exports.Schema = Schema;
+//# sourceMappingURL=index.js.map

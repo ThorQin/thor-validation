@@ -48,12 +48,12 @@ interface UnionRule extends Rule {
 	rules: (PrimitiveRule | MismatchRule)[];
 }
 
-interface RequiredRule extends CheckRule {
+interface NeedRule extends CheckRule {
 	rule: PrimitiveRule | UnionRule | null;
 }
 
 interface ItemRule extends Rule {
-	rule: PrimitiveRule | UnionRule | RequiredRule;
+	rule: PrimitiveRule | UnionRule | NeedRule;
 }
 
 interface PropRule extends ItemRule {
@@ -93,7 +93,7 @@ const RULES: { [key: string]: RuleMaker | null } = {
 	between: betweenRule as RuleMaker,
 	pattern: patternRule as RuleMaker,
 	any: anyRule as RuleMaker,
-	required: requiredRule as RuleMaker,
+	need: needRule as RuleMaker,
 	prop: propRule as RuleMaker,
 	item: itemRule as RuleMaker,
 	object: objectRule as RuleMaker,
@@ -270,19 +270,16 @@ export function pattern(regex: RegExp | string, message: string | null = null): 
  * Specify value must be provided, only be used as child rule of the primitive or group type
  * @param {string} message
  * @param  {...ComboRule} rules
- * @returns {RequiredRule}
+ * @returns {NeedRule}
  */
-export function required(
-	rule: PrimitiveRule | UnionRule | string | null = null,
-	message: string | null = null
-): RequiredRule {
+export function need(rule: PrimitiveRule | UnionRule | string | null = null, message: string | null = null): NeedRule {
 	if (typeof rule === 'string') {
 		message = rule;
 		rule = null;
 	}
 	return fill(
 		{
-			type: 'required',
+			type: 'need',
 			rule: rule as PrimitiveRule | UnionRule | null,
 		},
 		message
@@ -304,7 +301,7 @@ export function mismatch(message = null): MismatchRule {
 /**
  * Only be used as child rule of array type
  */
-export function item(rule: PrimitiveRule | UnionRule | RequiredRule): ItemRule {
+export function item(rule: PrimitiveRule | UnionRule | NeedRule): ItemRule {
 	return {
 		type: 'item',
 		rule: rule,
@@ -314,7 +311,7 @@ export function item(rule: PrimitiveRule | UnionRule | RequiredRule): ItemRule {
 /**
  * Only be used as child rule of object type
  */
-export function prop(name: string | number, rule: PrimitiveRule | UnionRule | RequiredRule): PropRule {
+export function prop(name: string | number, rule: PrimitiveRule | UnionRule | NeedRule): PropRule {
 	return {
 		type: 'prop',
 		name: name,
@@ -467,7 +464,7 @@ function propRule(rule: PropRule): Validator {
 	let validator: Validator;
 	try {
 		validator = createValidator(rule.rule, [
-			required.name,
+			need.name,
 			object.name,
 			string.name,
 			number.name,
@@ -497,7 +494,7 @@ function itemRule(rule: ItemRule): Validator {
 	let validator: Validator;
 	try {
 		validator = createValidator(rule.rule, [
-			required.name,
+			need.name,
 			object.name,
 			string.name,
 			number.name,
@@ -523,7 +520,7 @@ function itemRule(rule: ItemRule): Validator {
 	};
 }
 
-function requiredRule(rule: RequiredRule): Validator {
+function needRule(rule: NeedRule): Validator {
 	let validator: Validator | null = null;
 	if (rule.rule) {
 		try {
@@ -537,7 +534,7 @@ function requiredRule(rule: RequiredRule): Validator {
 				union.name,
 			]);
 		} catch (e) {
-			throw new SchemaError(`Invalid "required" rule:\n    > ${e.message}`);
+			throw new SchemaError(`Invalid "need" rule:\n    > ${e.message}`);
 		}
 	}
 	return (input) => {
@@ -545,7 +542,7 @@ function requiredRule(rule: RequiredRule): Validator {
 			if (rule.message) {
 				throw new ValidationError(rule.message);
 			} else {
-				throw new ValidationError('value is required');
+				throw new ValidationError('value is need');
 			}
 		}
 		if (validator) {
@@ -970,7 +967,7 @@ function unionRule(rule: UnionRule): Validator {
 export class Schema {
 	toJSON: () => Rule;
 	validate: Validator;
-	constructor(rule: RequiredRule | PrimitiveRule | UnionRule) {
+	constructor(rule: NeedRule | PrimitiveRule | UnionRule) {
 		this.toJSON = () => {
 			return rule;
 		};
@@ -978,7 +975,7 @@ export class Schema {
 			return JSON.stringify(rule, null, 2);
 		};
 		this.validate = createValidator(rule, [
-			required.name,
+			need.name,
 			object.name,
 			string.name,
 			number.name,

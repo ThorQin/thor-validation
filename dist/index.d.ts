@@ -36,11 +36,11 @@ interface PrimitiveRule extends Rule {
 interface UnionRule extends Rule {
 	rules: (PrimitiveRule | MismatchRule)[];
 }
-interface RequiredRule extends CheckRule {
+interface NeedRule extends CheckRule {
 	rule: PrimitiveRule | UnionRule | null;
 }
 interface ItemRule extends Rule {
-	rule: PrimitiveRule | UnionRule | RequiredRule;
+	rule: PrimitiveRule | UnionRule | NeedRule;
 }
 interface PropRule extends ItemRule {
 	name: string | number;
@@ -93,12 +93,9 @@ export declare function pattern(regex: RegExp | string, message?: string | null)
  * Specify value must be provided, only be used as child rule of the primitive or group type
  * @param {string} message
  * @param  {...ComboRule} rules
- * @returns {RequiredRule}
+ * @returns {NeedRule}
  */
-export declare function required(
-	rule?: PrimitiveRule | UnionRule | string | null,
-	message?: string | null
-): RequiredRule;
+export declare function need(rule?: PrimitiveRule | UnionRule | string | null, message?: string | null): NeedRule;
 /**
  * Show custom message when type mismatched, only be used as child rule of the primitive or group type
  */
@@ -106,11 +103,11 @@ export declare function mismatch(message?: null): MismatchRule;
 /**
  * Only be used as child rule of array type
  */
-export declare function item(rule: PrimitiveRule | UnionRule | RequiredRule): ItemRule;
+export declare function item(rule: PrimitiveRule | UnionRule | NeedRule): ItemRule;
 /**
  * Only be used as child rule of object type
  */
-export declare function prop(name: string | number, rule: PrimitiveRule | UnionRule | RequiredRule): PropRule;
+export declare function prop(name: string | number, rule: PrimitiveRule | UnionRule | NeedRule): PropRule;
 /**
  * That indicate validating should passed when any sub rule matched, can be used as top level rule
  */
@@ -146,6 +143,6 @@ export declare function array(...rules: CheckRule[]): PrimitiveRule;
 export declare class Schema {
 	toJSON: () => Rule;
 	validate: Validator;
-	constructor(rule: RequiredRule | PrimitiveRule | UnionRule);
+	constructor(rule: NeedRule | PrimitiveRule | UnionRule);
 }
 export {};
