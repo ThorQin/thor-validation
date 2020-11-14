@@ -6,7 +6,7 @@
     "url": "https://gitee.com/thor.qin/thor-validation.git"
   },
   "main": "./dist/cjs/index.js",
-  "exports": "./dist/esm/index.js",
+  "exports": "./dist/esm/index.mjs",
   "keywords": [
     "data",
     "time"
