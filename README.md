@@ -56,21 +56,21 @@ try {
 
 ### Major Rule Definitions
 
-1. required()
+1. need()
 
 ```javascript
 // input can not be undefined or null
-let rule = required();
+let rule = need();
 // input can not be undefined or null and it must be a string 
-let rule = required(string());
+let rule = need(string());
 // must be a number
-let rule = required(number())
+let rule = need(number())
 // must be a string or a number
-let rule = required(union(string(), number()));
+let rule = need(union(string(), number()));
 ...
 ```
 
-***required*** rule can only have primitive rule as it's sub rule, all supported sub rules are:
+***need*** rule can only have primitive rule as it's sub rule, all supported sub rules are:
 ```
 object, string, number, array, boolean, date, union
 ```
@@ -82,7 +82,7 @@ object, string, number, array, boolean, date, union
 // input should be a string, but if input not provide or it is null, it won't be regarded as error.
 let rule = string();
 // must be a string and cannot be null or undefined
-let rule = required(string());
+let rule = need(string());
 // string length must at least have 10 characters
 let rule = string(min(10));
 // string length must at most have 100 characters
@@ -142,11 +142,11 @@ let rule = object();
 let rule = object(
   prop('name', string()),
   prop('age', number()),
-  prop('extra', required()),
-  prop('detail', required(
+  prop('extra', need()),
+  prop('detail', need(
     object(
-      prop('id', required(number())),
-      prop('account', required(string()))
+      prop('id', need(number())),
+      prop('account', need(string()))
     )
   ))
 );
@@ -157,11 +157,11 @@ let rule = object(
 ```javascript
 let rule = array();
 let rule = array(
-  item(required(
+  item(need(
     union(
       object(
-        prop('id', required(number())),
-        prop('account', required(string()))
+        prop('id', need(number())),
+        prop('account', need(string()))
       ),
       string()
     )
@@ -184,7 +184,7 @@ let rule = union(string(), number());
 You can rename any rule name as what your like, this usually can shorten your code:
 
 ```javascript
-import {Schema, string as s, number as n, required as r, object as o, prop as p} from 'thor-validation';
+import {Schema, string as s, number as n, need as r, object as o, prop as p} from 'thor-validation';
 
 let rule = r(o(
   p('name', r(s(min(1), max(30)))),
@@ -197,16 +197,16 @@ let rule = r(o(
 To make the code clearly, usually you can split a complex definition to several parts:
 
 ```javascript
-let detail = required(object(
-  prop('name', required(string())),
-  prop('account', required(string())),
+let detail = need(object(
+  prop('name', need(string())),
+  prop('account', need(string())),
 ));
-let users = required(array(
+let users = need(array(
   item(detail),
   min(1), max(1000)
 ));
-let rule = required(object(
-  prop('action', required(string())),
+let rule = need(object(
+  prop('action', need(string())),
   prop('users', users)
 ));
 try {
@@ -236,10 +236,10 @@ There have a particular rule ```mismatch()```, it can under the primitive type r
 let rule = string(mismatch('There need a string'));
 ```
 
-2. required()
+2. need()
 
 ```javascript
-let rule = required('use custom message be the first parameter', object());
+let rule = need(object(), 'use custom message');
 ```
 
 3. Other check rules
