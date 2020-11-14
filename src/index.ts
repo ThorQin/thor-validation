@@ -114,7 +114,7 @@ const PRIMITIVE: { [key: string]: RuleMaker } = {
 	date: dateRule as RuleMaker,
 };
 
-function fill<T extends CheckRule>(info: T, message: string | number | null): T {
+function fill<T extends CheckRule>(info: T, message?: string | number | null): T {
 	if (typeof message === 'string' || typeof message === 'number') {
 		info.message = message.toString();
 	}
@@ -124,7 +124,7 @@ function fill<T extends CheckRule>(info: T, message: string | number | null): T 
 /**
  * Specified value, only be used as child rule of the primitive type string, number and boolean
  */
-export function equal(value: number | string | boolean | Date, message: string | null = null): EqualRule {
+export function equal(value: number | string | boolean | Date, message?: string): EqualRule {
 	return fill(
 		{
 			type: 'equal',
@@ -137,7 +137,7 @@ export function equal(value: number | string | boolean | Date, message: string |
 /**
  * Specify minimum value or length, only be used as child rule of the primitive type
  */
-export function min(value: number, message: string | null = null): ValueRule {
+export function min(value: number, message?: string): ValueRule {
 	return fill(
 		{
 			type: 'min',
@@ -150,7 +150,7 @@ export function min(value: number, message: string | null = null): ValueRule {
 /**
  * Specify maximum value or length, only be used as child rule of the primitive type
  */
-export function max(value: number, message: string | null = null): ValueRule {
+export function max(value: number, message?: string): ValueRule {
 	return fill(
 		{
 			type: 'max',
@@ -163,7 +163,7 @@ export function max(value: number, message: string | null = null): ValueRule {
 /**
  * Specify value or length's range, only be used as child rule of the primitive type
  */
-export function range(min: number, max: number, message: string | null = null): RangeRule {
+export function range(min: number, max: number, message?: string): RangeRule {
 	return fill(
 		{
 			type: 'range',
@@ -174,7 +174,7 @@ export function range(min: number, max: number, message: string | null = null): 
 	);
 }
 
-export function less(value: number, message = null): ValueRule {
+export function less(value: number, message?: string): ValueRule {
 	return fill(
 		{
 			type: 'less',
@@ -184,7 +184,7 @@ export function less(value: number, message = null): ValueRule {
 	);
 }
 
-export function more(value: number, message = null): ValueRule {
+export function more(value: number, message?: string): ValueRule {
 	return fill(
 		{
 			type: 'more',
@@ -194,7 +194,7 @@ export function more(value: number, message = null): ValueRule {
 	);
 }
 
-export function before(value: Date | string, message: string | null = null): DateRule {
+export function before(value: Date | string, message?: string): DateRule {
 	return fill(
 		{
 			type: 'before',
@@ -204,7 +204,7 @@ export function before(value: Date | string, message: string | null = null): Dat
 	);
 }
 
-export function after(value: Date | string, message: string | null = null): DateRule {
+export function after(value: Date | string, message?: string): DateRule {
 	return fill(
 		{
 			type: 'after',
@@ -214,7 +214,7 @@ export function after(value: Date | string, message: string | null = null): Date
 	);
 }
 
-export function begin(value: Date | string, message: string | null = null): DateRule {
+export function begin(value: Date | string, message?: string): DateRule {
 	return fill(
 		{
 			type: 'begin',
@@ -229,7 +229,7 @@ export function begin(value: Date | string, message: string | null = null): Date
  * @param {string} message
  * @returns {ValueRule}
  */
-export function end(value: Date | string, message: string | null = null): DateRule {
+export function end(value: Date | string, message?: string): DateRule {
 	return fill(
 		{
 			type: 'end',
@@ -242,7 +242,7 @@ export function end(value: Date | string, message: string | null = null): DateRu
 /**
  * Specify date range, only be used as child rule of the date type
  */
-export function between(begin: Date | string, end: Date | string, message: string | null = null): BetweenRule {
+export function between(begin: Date | string, end: Date | string, message?: string): BetweenRule {
 	return fill(
 		{
 			type: 'between',
@@ -256,7 +256,7 @@ export function between(begin: Date | string, end: Date | string, message: strin
 /**
  * Specify string pattern, only be used as child rule of the string type
  */
-export function pattern(regex: RegExp | string, message: string | null = null): PatternRule {
+export function pattern(regex: RegExp | string, message?: string): PatternRule {
 	return fill(
 		{
 			type: 'pattern',
@@ -272,7 +272,7 @@ export function pattern(regex: RegExp | string, message: string | null = null): 
  * @param  {...ComboRule} rules
  * @returns {NeedRule}
  */
-export function need(rule: PrimitiveRule | UnionRule | string | null = null, message: string | null = null): NeedRule {
+export function need(rule: PrimitiveRule | UnionRule | string | null = null, message?: string): NeedRule {
 	if (typeof rule === 'string') {
 		message = rule;
 		rule = null;
@@ -289,7 +289,7 @@ export function need(rule: PrimitiveRule | UnionRule | string | null = null, mes
 /**
  * Show custom message when type mismatched, only be used as child rule of the primitive or group type
  */
-export function mismatch(message = null): MismatchRule {
+export function mismatch(message?: string): MismatchRule {
 	return fill(
 		{
 			type: 'mismatch',

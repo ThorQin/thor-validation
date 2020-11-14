@@ -57,49 +57,49 @@ export declare class SchemaError extends Error {
 /**
  * Specified value, only be used as child rule of the primitive type string, number and boolean
  */
-export declare function equal(value: number | string | boolean | Date, message?: string | null): EqualRule;
+export declare function equal(value: number | string | boolean | Date, message?: string): EqualRule;
 /**
  * Specify minimum value or length, only be used as child rule of the primitive type
  */
-export declare function min(value: number, message?: string | null): ValueRule;
+export declare function min(value: number, message?: string): ValueRule;
 /**
  * Specify maximum value or length, only be used as child rule of the primitive type
  */
-export declare function max(value: number, message?: string | null): ValueRule;
+export declare function max(value: number, message?: string): ValueRule;
 /**
  * Specify value or length's range, only be used as child rule of the primitive type
  */
-export declare function range(min: number, max: number, message?: string | null): RangeRule;
-export declare function less(value: number, message?: null): ValueRule;
-export declare function more(value: number, message?: null): ValueRule;
-export declare function before(value: Date | string, message?: string | null): DateRule;
-export declare function after(value: Date | string, message?: string | null): DateRule;
-export declare function begin(value: Date | string, message?: string | null): DateRule;
+export declare function range(min: number, max: number, message?: string): RangeRule;
+export declare function less(value: number, message?: string): ValueRule;
+export declare function more(value: number, message?: string): ValueRule;
+export declare function before(value: Date | string, message?: string): DateRule;
+export declare function after(value: Date | string, message?: string): DateRule;
+export declare function begin(value: Date | string, message?: string): DateRule;
 /**
  * @param {string|Date} value
  * @param {string} message
  * @returns {ValueRule}
  */
-export declare function end(value: Date | string, message?: string | null): DateRule;
+export declare function end(value: Date | string, message?: string): DateRule;
 /**
  * Specify date range, only be used as child rule of the date type
  */
-export declare function between(begin: Date | string, end: Date | string, message?: string | null): BetweenRule;
+export declare function between(begin: Date | string, end: Date | string, message?: string): BetweenRule;
 /**
  * Specify string pattern, only be used as child rule of the string type
  */
-export declare function pattern(regex: RegExp | string, message?: string | null): PatternRule;
+export declare function pattern(regex: RegExp | string, message?: string): PatternRule;
 /**
  * Specify value must be provided, only be used as child rule of the primitive or group type
  * @param {string} message
  * @param  {...ComboRule} rules
  * @returns {NeedRule}
  */
-export declare function need(rule?: PrimitiveRule | UnionRule | string | null, message?: string | null): NeedRule;
+export declare function need(rule?: PrimitiveRule | UnionRule | string | null, message?: string): NeedRule;
 /**
  * Show custom message when type mismatched, only be used as child rule of the primitive or group type
  */
-export declare function mismatch(message?: null): MismatchRule;
+export declare function mismatch(message?: string): MismatchRule;
 /**
  * Only be used as child rule of array type
  */

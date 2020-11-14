@@ -56,7 +56,7 @@ function fill(info, message) {
 /**
  * Specified value, only be used as child rule of the primitive type string, number and boolean
  */
-function equal(value, message = null) {
+function equal(value, message) {
 	return fill(
 		{
 			type: 'equal',
@@ -69,7 +69,7 @@ exports.equal = equal;
 /**
  * Specify minimum value or length, only be used as child rule of the primitive type
  */
-function min(value, message = null) {
+function min(value, message) {
 	return fill(
 		{
 			type: 'min',
@@ -82,7 +82,7 @@ exports.min = min;
 /**
  * Specify maximum value or length, only be used as child rule of the primitive type
  */
-function max(value, message = null) {
+function max(value, message) {
 	return fill(
 		{
 			type: 'max',
@@ -95,7 +95,7 @@ exports.max = max;
 /**
  * Specify value or length's range, only be used as child rule of the primitive type
  */
-function range(min, max, message = null) {
+function range(min, max, message) {
 	return fill(
 		{
 			type: 'range',
@@ -106,7 +106,7 @@ function range(min, max, message = null) {
 	);
 }
 exports.range = range;
-function less(value, message = null) {
+function less(value, message) {
 	return fill(
 		{
 			type: 'less',
@@ -116,7 +116,7 @@ function less(value, message = null) {
 	);
 }
 exports.less = less;
-function more(value, message = null) {
+function more(value, message) {
 	return fill(
 		{
 			type: 'more',
@@ -126,7 +126,7 @@ function more(value, message = null) {
 	);
 }
 exports.more = more;
-function before(value, message = null) {
+function before(value, message) {
 	return fill(
 		{
 			type: 'before',
@@ -136,7 +136,7 @@ function before(value, message = null) {
 	);
 }
 exports.before = before;
-function after(value, message = null) {
+function after(value, message) {
 	return fill(
 		{
 			type: 'after',
@@ -146,7 +146,7 @@ function after(value, message = null) {
 	);
 }
 exports.after = after;
-function begin(value, message = null) {
+function begin(value, message) {
 	return fill(
 		{
 			type: 'begin',
@@ -161,7 +161,7 @@ exports.begin = begin;
  * @param {string} message
  * @returns {ValueRule}
  */
-function end(value, message = null) {
+function end(value, message) {
 	return fill(
 		{
 			type: 'end',
@@ -174,7 +174,7 @@ exports.end = end;
 /**
  * Specify date range, only be used as child rule of the date type
  */
-function between(begin, end, message = null) {
+function between(begin, end, message) {
 	return fill(
 		{
 			type: 'between',
@@ -188,7 +188,7 @@ exports.between = between;
 /**
  * Specify string pattern, only be used as child rule of the string type
  */
-function pattern(regex, message = null) {
+function pattern(regex, message) {
 	return fill(
 		{
 			type: 'pattern',
@@ -204,7 +204,7 @@ exports.pattern = pattern;
  * @param  {...ComboRule} rules
  * @returns {NeedRule}
  */
-function need(rule = null, message = null) {
+function need(rule = null, message) {
 	if (typeof rule === 'string') {
 		message = rule;
 		rule = null;
@@ -221,7 +221,7 @@ exports.need = need;
 /**
  * Show custom message when type mismatched, only be used as child rule of the primitive or group type
  */
-function mismatch(message = null) {
+function mismatch(message) {
 	return fill(
 		{
 			type: 'mismatch',
