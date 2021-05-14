@@ -1,6 +1,33 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.Schema = exports.array = exports.date = exports.string = exports.number = exports.boolean = exports.object = exports.union = exports.any = exports.prop = exports.item = exports.mismatch = exports.need = exports.pattern = exports.between = exports.end = exports.begin = exports.after = exports.before = exports.more = exports.less = exports.range = exports.max = exports.min = exports.equal = exports.SchemaError = exports.ValidationError = void 0;
+exports.Schema =
+	exports.array =
+	exports.date =
+	exports.string =
+	exports.number =
+	exports.boolean =
+	exports.object =
+	exports.union =
+	exports.any =
+	exports.prop =
+	exports.item =
+	exports.mismatch =
+	exports.need =
+	exports.pattern =
+	exports.between =
+	exports.end =
+	exports.begin =
+	exports.after =
+	exports.before =
+	exports.more =
+	exports.less =
+	exports.range =
+	exports.max =
+	exports.min =
+	exports.equal =
+	exports.SchemaError =
+	exports.ValidationError =
+		void 0;
 class ValidationError extends Error {
 	constructor(msg) {
 		super(msg);
