@@ -1,6 +1,6 @@
 {
   "name": "thor-validation",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "A simple data validation toolkit.",
   "repository": {
     "url": "https://gitee.com/thor.qin/thor-validation.git"

@@ -776,8 +776,8 @@ function createPrimitiveRule(rule, ...availableRules) {
 			} else if (inputType === 'number' && isNaN(input)) {
 				throwMismatch('invalid number');
 			}
+			validate(input, validators);
 		}
-		validate(input, validators);
 	};
 }
 function objectRule(rule) {
