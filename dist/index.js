@@ -400,7 +400,7 @@ function createSubValidators(parentRule, subRules, validators, ...availableRules
 		}
 		return mismatchMessage || null;
 	} catch (e) {
-		throw new SchemaError(`Invalid "${parentRule.type}" rule (sub rule ${i + 1}):\n    > ${e.message}`);
+		throw new SchemaError(`Invalid "${parentRule.type}" rule (sub rule ${i + 1}):\n    > ${e.message ?? e}`);
 	}
 }
 function propRule(rule) {
@@ -423,7 +423,7 @@ function propRule(rule) {
 			union.name,
 		]);
 	} catch (e) {
-		throw new SchemaError(`Invalid "prop" rule of "${rule.name}":\n    > ${e.message}`);
+		throw new SchemaError(`Invalid "prop" rule of "${rule.name}":\n    > ${e.message ?? e}`);
 	}
 	return (input) => {
 		try {
@@ -431,7 +431,7 @@ function propRule(rule) {
 				validator(input[rule.name]);
 			}
 		} catch (e) {
-			throw new ValidationError(`Invalid property "${rule.name}": ${e.message}`);
+			throw new ValidationError(`Invalid property "${rule.name}": ${e.message ?? e}`);
 		}
 	};
 }
@@ -452,7 +452,7 @@ function itemRule(rule) {
 			union.name,
 		]);
 	} catch (e) {
-		throw new SchemaError(`Invalid "item" rule:\n    > ${e.message}`);
+		throw new SchemaError(`Invalid "item" rule:\n    > ${e.message ?? e}`);
 	}
 	return (input) => {
 		let i = 0;
@@ -463,7 +463,7 @@ function itemRule(rule) {
 				}
 			}
 		} catch (e) {
-			throw new ValidationError(`Invalid item [${i}]: ${e.message}`);
+			throw new ValidationError(`Invalid item [${i}]: ${e.message ?? e}`);
 		}
 	};
 }
@@ -481,7 +481,7 @@ function needRule(rule) {
 				union.name,
 			]);
 		} catch (e) {
-			throw new SchemaError(`Invalid "need" rule:\n    > ${e.message}`);
+			throw new SchemaError(`Invalid "need" rule:\n    > ${e.message ?? e}`);
 		}
 	}
 	return (input) => {
@@ -682,7 +682,7 @@ function patternRule(rule) {
 			const flag = m[2];
 			exp = new RegExp(pat, flag || undefined);
 		} catch (e) {
-			throw new SchemaError(PATTERN_ERR_MSG + ': ' + e.message);
+			throw new SchemaError(PATTERN_ERR_MSG + ': ' + (e.message ?? e + ''));
 		}
 	} else {
 		throw new SchemaError(PATTERN_ERR_MSG);
@@ -740,7 +740,7 @@ function anyRule(rule, parentRule) {
 				validators[i](input);
 				return;
 			} catch (e) {
-				errors.push(e.message);
+				errors.push(e.message ?? e + '');
 			}
 		}
 		if (errors.length === 1) {
@@ -833,7 +833,7 @@ function unionRule(rule) {
 		});
 		rules.filter((r) => r.type in PRIMITIVE).forEach((r) => (typeValidator[r.type] = PRIMITIVE[r.type](r)));
 	} catch (e) {
-		throw new SchemaError(`Invalid "union" rule:\n    > ${e.message}`);
+		throw new SchemaError(`Invalid "union" rule:\n    > ${e.message ?? e}`);
 	}
 	const mismatchRule = rules.find((r) => r.type === mismatch.name);
 	const mismatchMessage = mismatchRule ? mismatchRule.message : null;
@@ -867,7 +867,7 @@ function unionRule(rule) {
 					validator(input);
 					return;
 				} catch (e) {
-					errors.push(e.message);
+					errors.push(e.message ?? e + '');
 				}
 			}
 			if (errors.length === 1) {

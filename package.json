@@ -1,6 +1,6 @@
 {
   "name": "thor-validation",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "A simple data validation toolkit.",
   "repository": {
     "url": "https://gitee.com/thor.qin/thor-validation.git"
@@ -12,18 +12,18 @@
   ],
   "author": "thor.qin@outlook.com",
   "license": "MIT",
-  "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.23.0",
-    "@typescript-eslint/parser": "^4.23.0",
-    "eslint": "^7.26.0",
-    "eslint-config-prettier": "^6.11.0",
-    "eslint-plugin-prettier": "^3.4.0",
-    "prettier": "^2.3.0",
-    "typescript": "^4.2.4"
-  },
   "scripts": {
     "build-cjs": "tsc -P tsconfig.json",
     "build": "rm -rf ./dist/* && npm run build-cjs",
     "postbuild": "prettier --write ./dist"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.12.0",
+    "@typescript-eslint/parser": "^5.12.0",
+    "eslint": "^8.9.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.5.1",
+    "typescript": "^4.5.5"
   }
 }
